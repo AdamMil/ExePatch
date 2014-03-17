@@ -109,14 +109,26 @@ namespace ExePatch
         }
         else
         {
-          for(int i=0; i<chunks.Length; i++)
+          if(chkSuspend.Checked && !SuspendProcess())
           {
-            if(!WriteProcess(chunks[i].MemoryAddress, chunks[i].Code))
+            MessageBox.Show("Unable to suspend the process.", "Cannot suspend process", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+          }
+          try
+          {
+            for(int i=0; i<chunks.Length; i++)
             {
-              MessageBox.Show("Unable to write to the process memory." + (i == 0 ? null : "The process was partially patched."),
-                              "Can not write", MessageBoxButtons.OK, MessageBoxIcon.Error);
-              return false;
+              if(!WriteProcess(chunks[i].MemoryAddress, chunks[i].Code, false))
+              {
+                MessageBox.Show("Unable to write to the process memory." + (i == 0 ? null : "The process was partially patched."),
+                                "Cannot write", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+              }
             }
+          }
+          finally
+          {
+            if(chkSuspend.Checked) ResumeProcess();
           }
         }
       }
@@ -141,7 +153,7 @@ namespace ExePatch
           file.Write(binaryData, 0, binaryData.Length);
         }
       }
-      else if(!WriteProcess(offset, binaryData))
+      else if(!WriteProcess(offset, binaryData, chkSuspend.Checked))
       {
         MessageBox.Show("Unable to write to the process memory.", "Can not write", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return false;
@@ -170,7 +182,7 @@ namespace ExePatch
       try
       {
         hProcess = Interop.OpenProcess(ProcessAccess.SuspendResume, false, ProcessId);
-        return hProcess != IntPtr.Zero && Interop.NtSuspendProcess(hProcess) != 0;
+        return hProcess != IntPtr.Zero && Interop.NtSuspendProcess(hProcess) == 0;
       }
       finally
       {
@@ -178,21 +190,21 @@ namespace ExePatch
       }
     }
 
-    bool WriteProcess(uint offset, byte[] data)
+    bool WriteProcess(uint offset, byte[] data, bool suspend)
     {
       IntPtr hProcess = IntPtr.Zero;
       try
       {
         ProcessAccess access = ProcessAccess.OpMemory | ProcessAccess.WriteMemory;
-        if(chkSuspend.Checked) access |= ProcessAccess.SuspendResume;
+        if(suspend) access |= ProcessAccess.SuspendResume;
         hProcess = Interop.OpenProcess(access, false, ProcessId);
         if(hProcess != IntPtr.Zero)
         {
-          if(chkSuspend.Checked) Interop.NtSuspendProcess(hProcess);
+          bool suspended = suspend && Interop.NtSuspendProcess(hProcess) == 0;
           IntPtr bytesWritten;
           bool success = Interop.WriteProcessMemory(hProcess, new IntPtr((int)offset), data, new IntPtr((uint)data.Length),
                                                     out bytesWritten);
-          if(chkSuspend.Checked) Interop.NtResumeProcess(hProcess);
+          if(suspended) Interop.NtResumeProcess(hProcess);
           return success;
         }
       }
