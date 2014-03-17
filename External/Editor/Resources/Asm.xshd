@@ -551,6 +551,7 @@
         <Key word="hlt" />
         <Key word="ibts" />
         <Key word="icebp" />
+        <Key word="int3" />
         <Key word="invd" />
         <Key word="invlpg" />
         <Key word="lar" />

@@ -480,7 +480,20 @@ namespace ExePatch
       using(PatchForm form = new PatchForm(Editor.BaseAddress, Editor.PatchFile, Editor.PatchProcessId, Editor.SuspendProcess,
                                            AsmEditor.Document.TextContent))
       {
-        if(form.ShowDialog() == DialogResult.OK) lblStatus.Text = "Executable multi-patched.";
+        if(form.ShowDialog() == DialogResult.OK)
+        {
+          if(form.PatchFile)
+          {
+            Editor.PatchFile      = form.FilePath;
+            Editor.PatchProcessId = 0;
+          }
+          else
+          {
+            Editor.PatchProcessId = form.ProcessId;
+            Editor.SuspendProcess = form.ShouldSuspendProcess;
+          }
+          lblStatus.Text = "Executable multi-patched.";
+        }
       }
     }
 
