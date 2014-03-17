@@ -1,0 +1,767 @@
+<?xml version="1.0"?>
+<!-- syntaxdefinition for assembly by Adam Milazzo -->
+
+<SyntaxDefinition name="Assembly" extensions=".asm">
+  <Environment>
+    <!--Default color="DimGray" bgcolor="White" /-->
+  </Environment>
+
+	<Properties>
+    <Property name="LineComment" value=";"/>
+  </Properties>
+
+  <Digits name="Digits" bold="true" color="DarkOliveGreen"/>
+	
+	<RuleSets>
+		<RuleSet ignorecase="true">
+			<Delimiters>&amp;&lt;&gt;~!^*()-+=|\/{}[]:;"' ,.	</Delimiters>
+			<Span name="LineComment" color="Green" stopateol="true">
+				<Begin>;</Begin>
+			</Span>
+
+      <Span name="BlockComment" color="Green" stopateol="false">
+        <Begin>%comment</Begin>
+        <End>%endcomment</End>
+      </Span>
+
+      <Span name="String" color="Black" stopateol="true">
+				<Begin>"</Begin>
+				<End>"</End>
+			</Span>
+			
+			<Span name="Char" color="Black" stopateol="true">
+				<Begin>&apos;</Begin>
+				<End>&apos;</End>
+			</Span>
+
+      <Span name="CPUType" rule="CPUs" color="Red" stopateol="true">
+        <Begin color="Blue" singleword="true" startofline="true">CPU</Begin>
+      </Span>
+
+      <Span name="DefaultOptions" rule="DefaultOptions" color="Red" stopateol="true">
+        <Begin color="Blue" singleword="true" startofline="true">DEFAULT</Begin>
+      </Span>
+
+      <Span name="FloatOptions" rule="FloatOptions" color="Red" stopateol="true">
+        <Begin color="Blue" singleword="true" startofline="true">FLOAT</Begin>
+      </Span>
+
+      <MarkPrevious color="DarkCyan">:</MarkPrevious>
+      <MarkFollowing color="DarkCyan">.</MarkFollowing>
+
+      <KeyWords name="Punctuation" color="#505050">
+				<Key word="?" />
+				<Key word="," />
+				<Key word="." />
+				<Key word=";" />
+				<Key word="(" />
+				<Key word=")" />
+				<Key word="[" />
+				<Key word="]" />
+				<Key word="{" />
+				<Key word="}" />
+				<Key word="+" />
+				<Key word="-" />
+				<Key word="/" />
+				<Key word="%" />
+				<Key word="*" />
+				<Key word="&lt;" />
+				<Key word="&gt;" />
+				<Key word="^" />
+				<Key word="=" />
+				<Key word="~" />
+				<Key word="!" />
+				<Key word="|" />
+				<Key word="&amp;" />
+			</KeyWords>
+
+      <KeyWords name="ValueSymbols" color="Black">
+        <Key word="$" />
+      </KeyWords>
+			
+			<KeyWords name="AccessKeywords" color="SteelBlue">
+        <Key word="abs" />
+        <Key word="byte" />
+				<Key word="word" />
+        <Key word="dword" />
+        <Key word="qword" />
+        <Key word="rel" />
+        <Key word="seg" />
+        <Key word="strict" />
+      </KeyWords>
+
+      <KeyWords name="DistanceKeywords" color="SteelBlue">
+        <Key word="short" />
+        <Key word="near" />
+        <Key word="far" />
+      </KeyWords>
+
+      <KeyWords name="DataKeywords" color="DarkOrange">
+        <Key word="db" />
+        <Key word="dw" />
+        <Key word="dd" />
+        <Key word="dq" />
+        <Key word="dt" />
+        <Key word="dy" />
+        <Key word="dz" />
+        <Key word="resb" />
+        <Key word="resw" />
+        <Key word="resd" />
+        <Key word="resq" />
+        <Key word="rest" />
+        <Key word="resy" />
+        <Key word="resz" />
+      </KeyWords>
+
+      <KeyWords name="RegisterKeywords" color="DarkViolet">
+        <Key word="al" />
+        <Key word="ah" />
+        <Key word="ax" />
+        <Key word="eax" />
+        <Key word="bl" />
+        <Key word="bh" />
+        <Key word="bx" />
+        <Key word="ebx" />
+        <Key word="cl" />
+        <Key word="ch" />
+        <Key word="cx" />
+        <Key word="ecx" />
+        <Key word="dl" />
+        <Key word="dh" />
+        <Key word="dx" />
+        <Key word="edx" />
+        <Key word="bp" />
+        <Key word="ebp" />
+        <Key word="di" />
+        <Key word="edi" />
+        <Key word="si" />
+        <Key word="esi" />
+        <Key word="sp" />
+        <Key word="esp" />
+        <Key word="cs" />
+        <Key word="ds" />
+        <Key word="es" />
+        <Key word="fs" />
+        <Key word="gs" />
+      </KeyWords>
+
+      <KeyWords name="PrefixKeywords" bold="true" color="SlateBlue">
+        <Key word="lock" />
+        <Key word="rep" />
+        <Key word="repe" />
+        <Key word="repne" />
+        <Key word="repnz" />
+        <Key word="repz" />
+      </KeyWords>
+
+      <KeyWords name="PreprocessorKeywords" color="Blue">
+        <Key word="%+" />
+        <Key word="%?" />
+        <Key word="%??" />
+        <Key word="%arg" />
+        <Key word="%define" />
+        <Key word="%defstr" />
+        <Key word="%deftok" />
+        <Key word="%depend" />
+        <Key word="%endif" />
+        <Key word="%endmacro" />
+        <Key word="%error" />
+        <Key word="%fatal" />
+        <Key word="%if" />
+        <Key word="%ifctx" />
+        <Key word="%ifdef" />
+        <Key word="%ifid" />
+        <Key word="%ifidn" />
+        <Key word="%ifidni" />
+        <Key word="%ifempty" />
+        <Key word="%ifenv" />
+        <Key word="%ifmacro" />
+        <Key word="%ifnum" />
+        <Key word="%ifstr" />
+        <Key word="%iftoken" />
+        <Key word="%include" />
+        <Key word="%line" />
+        <Key word="%local" />
+        <Key word="%macro" />
+        <Key word="%pathsearch" />
+        <Key word="%pop" />
+        <Key word="%push" />
+        <Key word="%rep" />
+        <Key word="%repl" />
+        <Key word="%rotate" />
+        <Key word="%stacksize" />
+        <Key word="%strcat" />
+        <Key word="%strlen" />
+        <Key word="%substr" />
+        <Key word="%undef" />
+        <Key word="%unmacro" />
+        <Key word="%use" />
+        <Key word="%warning" />
+        <Key word="at" />
+        <Key word="istruc" />
+        <Key word="iend" />
+        <Key word="struc" />
+        <Key word="endstruc" />
+      </KeyWords>
+
+      <KeyWords name="PreprocessorVariables" color="Blue">
+        <Key word="__BITS__" />
+        <Key word="__DATE__" />
+        <Key word="__DATE_NUM__" />
+        <Key word="__TIME__" />
+        <Key word="__TIME_NUM__" />
+        <Key word="__POSIX_TIME__" />
+        <Key word="__UTC_DATE__" />
+        <Key word="__UTC_DATE_NUM__" />
+        <Key word="__UTC_TIME__" />
+        <Key word="__UTC_TIME_NUM__" />
+        <Key word="__FILE__" />
+        <Key word="__FLOAT__" />
+        <Key word="__FLOAT_DAZ__" />
+        <Key word="__FLOAT_ROUND__" />
+        <Key word="__LINE__" />
+        <Key word="__PASS__" />
+        <Key word="__NASM_MAJOR__" />
+        <Key word="__NASM_MINOR__" />
+        <Key word="__NASM_SUBMINOR__" />
+        <Key word="__NASM_PATCHLEVEL__" />
+        <Key word="__NASM_VER__" />
+        <Key word="__NASM_VERSION_ID__" />
+        <Key word="__OUTPUT_FORMAT__" />
+        <Key word="__SECT__" />
+      </KeyWords>
+			
+			<KeyWords name="NasmKeywords" color="Blue">
+        <Key word="ABSOLUTE" />
+        <Key word="BITS" />
+        <Key word="DEFAULT" />
+        <Key word="EXPORT" />
+        <Key word="GROUP" />
+        <Key word="IMPORT" />
+        <Key word="ORG" />
+        <Key word="SECTION" />
+        <Key word="SEGMENT" />
+        <Key word="UPPERCASE" />
+        <Key word="USE16" />
+        <Key word="USE32" />
+        <Key word="align" />
+        <Key word="alignb" />
+        <Key word="common" />
+        <Key word="equ" />
+        <Key word="extern" />
+        <Key word="global" />
+        <Key word="incbin" />
+        <Key word="sectalign" />
+        <Key word="times" />
+      </KeyWords>
+			
+			<KeyWords name="FlowMneumonics" color="#D00000">
+        <Key word="call" />
+        <Key word="iret" />
+        <Key word="iretd" />
+        <Key word="ret" />
+        <Key word="retf" />
+        <Key word="retn" />
+        <Key word="syscall" />
+        <Key word="sysenter" />
+        <Key word="sysexit" />
+        <Key word="sysret" />
+        <Key word="ja" />
+        <Key word="jae" />
+        <Key word="jb" />
+        <Key word="jbe" />
+        <Key word="jc" />
+        <Key word="jcxnz" />
+        <Key word="jcxz" />
+        <Key word="je" />
+        <Key word="jg" />
+        <Key word="jge" />
+        <Key word="jl" />
+        <Key word="jle" />
+        <Key word="jmp" />
+        <Key word="jna" />
+        <Key word="jnae" />
+        <Key word="jnb" />
+        <Key word="jnbe" />
+        <Key word="jnc" />
+        <Key word="jne" />
+        <Key word="jng" />
+        <Key word="jnge" />
+        <Key word="jnl" />
+        <Key word="jnle" />
+        <Key word="jno" />
+        <Key word="jnp" />
+        <Key word="jns" />
+        <Key word="jnz" />
+        <Key word="jo" />
+        <Key word="jp" />
+        <Key word="jpe" />
+        <Key word="jpo" />
+        <Key word="js" />
+        <Key word="jz" />
+      </KeyWords>
+
+      <KeyWords name="CommonMneumonics" color="DarkRed">
+        <Key word="adc" />
+        <Key word="add" />
+        <Key word="and" />
+        <Key word="bound" />
+        <Key word="bsf" />
+        <Key word="bsr" />
+        <Key word="bswap" />
+        <Key word="bt" />
+        <Key word="btc" />
+        <Key word="btr" />
+        <Key word="bts" />
+        <Key word="cbw" />
+        <Key word="cdq" />
+        <Key word="clc" />
+        <Key word="cld" />
+        <Key word="cli" />
+        <Key word="clts" />
+        <Key word="cmc" />
+        <Key word="cmovcc" />
+        <Key word="cmp" />
+        <Key word="cmps" />
+        <Key word="cmpxchg" />
+        <Key word="cmpxchg8b" />
+        <Key word="cwd" />
+        <Key word="cwde" />
+        <Key word="dec" />
+        <Key word="div" />
+        <Key word="enter" />
+        <Key word="fwait" />
+        <Key word="idiv" />
+        <Key word="imul" />
+        <Key word="in" />
+        <Key word="inc" />
+        <Key word="ins" />
+        <Key word="int" />
+        <Key word="into" />
+        <Key word="lahf" />
+        <Key word="lea" />
+        <Key word="leave" />
+        <Key word="loadall" />
+        <Key word="lods" />
+        <Key word="loop" />
+        <Key word="loope" />
+        <Key word="loopne" />
+        <Key word="loopnz" />
+        <Key word="loopz" />
+        <Key word="mov" />
+        <Key word="movs" />
+        <Key word="movsb" />
+        <Key word="movsw" />
+        <Key word="movsd" />
+        <Key word="movsx" />
+        <Key word="movzx" />
+        <Key word="mul" />
+        <Key word="neg" />
+        <Key word="nop" />
+        <Key word="not" />
+        <Key word="or" />
+        <Key word="out" />
+        <Key word="outs" />
+        <Key word="pop" />
+        <Key word="popa" />
+        <Key word="popad" />
+        <Key word="popf" />
+        <Key word="popfd" />
+        <Key word="por" />
+        <Key word="push" />
+        <Key word="pusha" />
+        <Key word="pushad" />
+        <Key word="pushf" />
+        <Key word="pushfd" />
+        <Key word="rcl" />
+        <Key word="rcr" />
+        <Key word="rol" />
+        <Key word="ror" />
+        <Key word="sahf" />
+        <Key word="sal" />
+        <Key word="sar" />
+        <Key word="sbb" />
+        <Key word="scas" />
+        <Key word="scasb" />
+        <Key word="scasw" />
+        <Key word="scasd" />
+        <Key word="setae" />
+        <Key word="setalc" />
+        <Key word="setb" />
+        <Key word="setbe" />
+        <Key word="setc" />
+        <Key word="sete" />
+        <Key word="setg" />
+        <Key word="setge" />
+        <Key word="setl" />
+        <Key word="setle" />
+        <Key word="setna" />
+        <Key word="setnae" />
+        <Key word="setnb" />
+        <Key word="setnc" />
+        <Key word="setne" />
+        <Key word="setng" />
+        <Key word="setnge" />
+        <Key word="setnl" />
+        <Key word="setnle" />
+        <Key word="setno" />
+        <Key word="setnp" />
+        <Key word="setns" />
+        <Key word="setnz" />
+        <Key word="seto" />
+        <Key word="setp" />
+        <Key word="setpe" />
+        <Key word="setpo" />
+        <Key word="sets" />
+        <Key word="setz" />
+        <Key word="shl" />
+        <Key word="shld" />
+        <Key word="shr" />
+        <Key word="shrd" />
+        <Key word="stc" />
+        <Key word="std" />
+        <Key word="sti" />
+        <Key word="stos" />
+        <Key word="stosb" />
+        <Key word="stosw" />
+        <Key word="stosd" />
+        <Key word="sub" />
+        <Key word="test" />
+        <Key word="xadd" />
+        <Key word="xbts" />
+        <Key word="xchg" />
+        <Key word="xlat" />
+        <Key word="xlatb" />
+        <Key word="xor" />
+      </KeyWords>
+
+      <KeyWords name="FPMneumonics" color="#B35F00">
+        <Key word="f2xm1" />
+        <Key word="fabs" />
+        <Key word="fadd" />
+        <Key word="faddp" />
+        <Key word="fbld" />
+        <Key word="fbstp" />
+        <Key word="fchs" />
+        <Key word="fclex" />
+        <Key word="fcom" />
+        <Key word="fcomp" />
+        <Key word="fcompp" />
+        <Key word="fcos" />
+        <Key word="fdecstp" />
+        <Key word="fdisi" />
+        <Key word="fdiv" />
+        <Key word="fdivp" />
+        <Key word="fdivr" />
+        <Key word="fdivrp" />
+        <Key word="feni" />
+        <Key word="ffree" />
+        <Key word="fiadd" />
+        <Key word="ficom" />
+        <Key word="ficomp" />
+        <Key word="fidiv" />
+        <Key word="fidivr" />
+        <Key word="fild" />
+        <Key word="fimul" />
+        <Key word="fincstp" />
+        <Key word="finit" />
+        <Key word="fist" />
+        <Key word="fistp" />
+        <Key word="fisub" />
+        <Key word="fisubr" />
+        <Key word="fld" />
+        <Key word="fld1" />
+        <Key word="fldcw" />
+        <Key word="fldenv" />
+        <Key word="fldl2e" />
+        <Key word="fldl2t" />
+        <Key word="fldlg2" />
+        <Key word="fldln2" />
+        <Key word="fldpi" />
+        <Key word="fldz" />
+        <Key word="fmul" />
+        <Key word="fmulp" />
+        <Key word="fnclex" />
+        <Key word="fndisi" />
+        <Key word="fneni" />
+        <Key word="fninit" />
+        <Key word="fnop" />
+        <Key word="fnsave" />
+        <Key word="fnstcw" />
+        <Key word="fnstenv" />
+        <Key word="fnstsw" />
+        <Key word="fpatan" />
+        <Key word="fprem" />
+        <Key word="fprem1" />
+        <Key word="fptan" />
+        <Key word="frndint" />
+        <Key word="frstor" />
+        <Key word="fsave" />
+        <Key word="fscale" />
+        <Key word="fsetpm" />
+        <Key word="fsin" />
+        <Key word="fsincos" />
+        <Key word="fsqrt" />
+        <Key word="fst" />
+        <Key word="fstcw" />
+        <Key word="fstenv" />
+        <Key word="fstp" />
+        <Key word="fstsw" />
+        <Key word="fsub" />
+        <Key word="fsubp" />
+        <Key word="fsubr" />
+        <Key word="fsubrp" />
+        <Key word="ftst" />
+        <Key word="fucom" />
+        <Key word="fucomp" />
+        <Key word="fucompp" />
+        <Key word="fxam" />
+        <Key word="fxch" />
+        <Key word="fxtract" />
+        <Key word="fyl2x" />
+        <Key word="fyl2xp1" />
+      </KeyWords>
+
+      <KeyWords name="UncommonMneumonics" color="#5A4D13">
+        <Key word="aaa" />
+        <Key word="aad" />
+        <Key word="aam" />
+        <Key word="aas" />
+        <Key word="addss" />
+        <Key word="andnps" />
+        <Key word="andps" />
+        <Key word="arpl" />
+        <Key word="cpuid" />
+        <Key word="cmpps" />
+        <Key word="cmpss" />
+        <Key word="comiss" />
+        <Key word="cvtpi2ps" />
+        <Key word="cvtps2pi" />
+        <Key word="cvtsi2ss" />
+        <Key word="cvtss2si" />
+        <Key word="cvttps2pi" />
+        <Key word="cvttss2si" />
+        <Key word="daa" />
+        <Key word="das" />
+        <Key word="divps" />
+        <Key word="divss" />
+        <Key word="emms" />
+        <Key word="esc" />
+        <Key word="femms" />
+        <Key word="hlt" />
+        <Key word="ibts" />
+        <Key word="icebp" />
+        <Key word="invd" />
+        <Key word="invlpg" />
+        <Key word="lar" />
+        <Key word="ldmxcsr" />
+        <Key word="lds" />
+        <Key word="les" />
+        <Key word="lfs" />
+        <Key word="lgdt" />
+        <Key word="lgs" />
+        <Key word="lidt" />
+        <Key word="lldt" />
+        <Key word="lmsw" />
+        <Key word="lsl" />
+        <Key word="lss" />
+        <Key word="ltr" />
+        <Key word="maskmovq" />
+        <Key word="maxps" />
+        <Key word="maxss" />
+        <Key word="minps" />
+        <Key word="minss" />
+        <Key word="movaps" />
+        <Key word="movd" />
+        <Key word="movhlps" />
+        <Key word="movhps" />
+        <Key word="movlhps" />
+        <Key word="movlps" />
+        <Key word="movmskps" />
+        <Key word="movntps" />
+        <Key word="movntq" />
+        <Key word="movq" />
+        <Key word="movss" />
+        <Key word="movups" />
+        <Key word="mulps" />
+        <Key word="mulss" />
+        <Key word="oio" />
+        <Key word="orps" />
+        <Key word="packssdw" />
+        <Key word="packsswb" />
+        <Key word="packuswb" />
+        <Key word="paddb" />
+        <Key word="paddd" />
+        <Key word="paddsb" />
+        <Key word="paddsiw" />
+        <Key word="paddsw" />
+        <Key word="paddusb" />
+        <Key word="paddusw" />
+        <Key word="paddw" />
+        <Key word="pand" />
+        <Key word="pandn" />
+        <Key word="paveb" />
+        <Key word="pavgusb" />
+        <Key word="pcmpeqb" />
+        <Key word="pcmpeqd" />
+        <Key word="pcmpeqw" />
+        <Key word="pcmpgtb" />
+        <Key word="pcmpgtd" />
+        <Key word="pcmpgtw" />
+        <Key word="pdistib" />
+        <Key word="pextrw" />
+        <Key word="pf2id" />
+        <Key word="pf2iw" />
+        <Key word="pfacc" />
+        <Key word="pfadd" />
+        <Key word="pfcmpeq" />
+        <Key word="pfcmpge" />
+        <Key word="pfcmpgt" />
+        <Key word="pfmax" />
+        <Key word="pfmin" />
+        <Key word="pfmul" />
+        <Key word="pfnacc" />
+        <Key word="pfpnacc" />
+        <Key word="pfrcp" />
+        <Key word="pfrcpit1" />
+        <Key word="pfrcpit2" />
+        <Key word="pfrsqit1" />
+        <Key word="pfrsqrt" />
+        <Key word="pfsub" />
+        <Key word="pfsubr" />
+        <Key word="pi2fd" />
+        <Key word="pi2fw" />
+        <Key word="pinsrw" />
+        <Key word="pmachriw" />
+        <Key word="pmaddwd" />
+        <Key word="pmagw" />
+        <Key word="pmaxsw" />
+        <Key word="pmaxub" />
+        <Key word="pminsw" />
+        <Key word="pminub" />
+        <Key word="pmovmskb" />
+        <Key word="pmulhriw" />
+        <Key word="pmulhrw" />
+        <Key word="pmulhrw" />
+        <Key word="pmulhuw" />
+        <Key word="pmulhw" />
+        <Key word="pmullw" />
+        <Key word="pmvgezb" />
+        <Key word="pmvlzb" />
+        <Key word="pmvnzb" />
+        <Key word="pmvzb" />
+        <Key word="prefetch" />
+        <Key word="prefetchxx" />
+        <Key word="prefetchw" />
+        <Key word="pslld" />
+        <Key word="psllq" />
+        <Key word="psllw" />
+        <Key word="psrad" />
+        <Key word="psraw" />
+        <Key word="psrld" />
+        <Key word="psrlq" />
+        <Key word="psrlw" />
+        <Key word="psubb" />
+        <Key word="psubd" />
+        <Key word="psubsb" />
+        <Key word="psubsiw" />
+        <Key word="psubsw" />
+        <Key word="psubusb" />
+        <Key word="psubusw" />
+        <Key word="psubw" />
+        <Key word="pswapd" />
+        <Key word="punpckhbw" />
+        <Key word="punpckhdq" />
+        <Key word="punpckhwd" />
+        <Key word="punpcklbw" />
+        <Key word="punpckldq" />
+        <Key word="punpcklwd" />
+        <Key word="pxor" />
+        <Key word="rcpps" />
+        <Key word="rcpss" />
+        <Key word="rdmsr" />
+        <Key word="rdpmc" />
+        <Key word="rdshr" />
+        <Key word="rdtsc" />
+        <Key word="res3" />
+        <Key word="res4" />
+        <Key word="rsdc" />
+        <Key word="rsldt" />
+        <Key word="rsm" />
+        <Key word="rsqrtps" />
+        <Key word="rsqrtss" />
+        <Key word="rsts" />
+        <Key word="sfence" />
+        <Key word="sgdt" />
+        <Key word="shufps" />
+        <Key word="sidt" />
+        <Key word="sldt" />
+        <Key word="smi" />
+        <Key word="smint" />
+        <Key word="smsw" />
+        <Key word="sqrtps" />
+        <Key word="sqrtss" />
+        <Key word="stmxcsr" />
+        <Key word="str" />
+        <Key word="subps" />
+        <Key word="subss" />
+        <Key word="svdc" />
+        <Key word="svldt" />
+        <Key word="svts" />
+        <Key word="ucomiss" />
+        <Key word="unpcklps" />
+        <Key word="verr" />
+        <Key word="verw" />
+        <Key word="wait" />
+        <Key word="wbinvd" />
+        <Key word="wrmsr" />
+        <Key word="wrshr" />
+        <Key word="xorps" />
+      </KeyWords>
+		</RuleSet>
+
+    <RuleSet name="CPUs" ignorecase="true">
+      <KeyWords name="CPUTypes" color="Blue">
+        <Key word="8086"/>
+        <Key word="186"/>
+        <Key word="286"/>
+        <Key word="386"/>
+        <Key word="486"/>
+        <Key word="586"/>
+        <Key word="PENTIUM"/>
+        <Key word="686"/>
+        <Key word="PPRO"/>
+        <Key word="P2"/>
+        <Key word="P3"/>
+        <Key word="KATMAI"/>
+        <Key word="P4"/>
+        <Key word="WILLAMETTE"/>
+        <Key word="PRESCOTT"/>
+        <Key word="X64"/>
+        <Key word="IA64"/>
+      </KeyWords>
+    </RuleSet>
+
+    <RuleSet name="DefaultOptions" ignorecase="true">
+      <KeyWords name="Options" color="Blue">
+        <Key word="BND" />
+        <Key word="NOBND" />
+        <Key word="REL" />
+        <Key word="ABS" />
+      </KeyWords>
+    </RuleSet>
+
+    <RuleSet name="FloatOptions" ignorecase="true">
+      <KeyWords name="Options" color="Blue">
+        <Key word="DAZ"/>
+        <Key word="NODAZ"/>
+        <Key word="NEAR"/>
+        <Key word="UP"/>
+        <Key word="DOWN"/>
+        <Key word="ZERO"/>
+        <Key word="DEFAULT"/>
+      </KeyWords>
+    </RuleSet>
+  </RuleSets>
+</SyntaxDefinition>
+
