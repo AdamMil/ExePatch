@@ -51,12 +51,12 @@
       // link
       // 
       link.AutoSize = true;
-      link.Location = new System.Drawing.Point(272, 38);
+      link.Location = new System.Drawing.Point(150, 55);
       link.Name = "link";
-      link.Size = new System.Drawing.Size(121, 13);
+      link.Size = new System.Drawing.Size(249, 13);
       link.TabIndex = 3;
       link.TabStop = true;
-      link.Text = "http://www.adammil.net";
+      link.Text = "http://www.adammil.net/blog/v122_ExePatch.html";
       link.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.link_LinkClicked);
       // 
       // btnOK
@@ -92,7 +92,7 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = btnOK;
-      this.ClientSize = new System.Drawing.Size(409, 154);
+      this.ClientSize = new System.Drawing.Size(420, 154);
       this.Controls.Add(btnOK);
       this.Controls.Add(link);
       this.Controls.Add(lblBy);
