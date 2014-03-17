@@ -591,6 +591,7 @@ namespace ExePatch
 
     void tutorialMenuItem_Click(object sender, EventArgs e)
     {
+      Process.Start("http://www.youtube.com/watch?v=IxzDhsNGA5A&hd=1");
     }
 
     void txtAsm_DocumentChanged(object sender, DocumentEventArgs e)
