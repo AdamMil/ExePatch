@@ -1,0 +1,1 @@
+ExePatch is an assembly IDE designed to simplify the development of binary patches to executables, such as when creating code mods for video games, although it should work for many kinds of executable patching needs.
