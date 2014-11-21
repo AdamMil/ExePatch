@@ -19,7 +19,7 @@ namespace ExePatch
 
     public MainForm(string[] args) : this()
     {
-      if(args.Length != 0) OpenFile(args[0]);
+      if(args.Length != 0) initialFile = args[0];
     }
 
     public string StatusText
@@ -57,6 +57,13 @@ namespace ExePatch
       if(hIcon != IntPtr.Zero) Icon = System.Drawing.Icon.FromHandle(hIcon);
 
       NewFile();
+
+      if(!string.IsNullOrEmpty(initialFile))
+      {
+        try { OpenFile(initialFile); }
+        catch(Exception ex) { Program.ShowErrorMessage(ex); }
+      }
+
       asmTimer = new System.Threading.Timer(TimerTick, null, 1000, 100);
     }
 
@@ -76,15 +83,15 @@ namespace ExePatch
           {
             int start = offset, end = offset+1;
             char c = textBuffer.GetCharAt(offset);
-            if(char.IsLetterOrDigit(c))
+            if(char.IsLetterOrDigit(c) || c == '_')
             {
-              while(start > 0 && char.IsLetterOrDigit(textBuffer.GetCharAt(start-1))) start--;
-              while(end < length && char.IsLetterOrDigit(textBuffer.GetCharAt(end))) end++;
+              while(start > 0 && (char.IsLetterOrDigit((c=textBuffer.GetCharAt(start-1))) || c == '_')) start--;
+              while(end < length && (char.IsLetterOrDigit((c=textBuffer.GetCharAt(end))) || c == '_')) end++;
             }
             else if(!char.IsWhiteSpace(c))
             {
-              while(start > 0 && !char.IsLetterOrDigit((c=textBuffer.GetCharAt(start-1))) && !char.IsWhiteSpace(c)) start--;
-              while(end < length && !char.IsLetterOrDigit((c=textBuffer.GetCharAt(end))) && !char.IsWhiteSpace(c)) end++;
+              while(start > 0 && !char.IsLetterOrDigit((c=textBuffer.GetCharAt(start-1))) && !char.IsWhiteSpace(c) && c != '_') start--;
+              while(end < length && !char.IsLetterOrDigit((c=textBuffer.GetCharAt(end))) && !char.IsWhiteSpace(c) && c != '_') end++;
             }
             else
             {
@@ -639,6 +646,7 @@ namespace ExePatch
 
     System.Threading.Timer asmTimer;
     FindReplaceForm findReplace;
+    readonly string initialFile;
     bool closed;
 
     [System.Runtime.InteropServices.DllImport("kernel32.dll")]

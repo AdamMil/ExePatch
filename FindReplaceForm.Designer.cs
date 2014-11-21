@@ -53,7 +53,7 @@
       lblFind.Name = "lblFind";
       lblFind.Size = new System.Drawing.Size(56, 13);
       lblFind.TabIndex = 0;
-      lblFind.Text = "Find what:";
+      lblFind.Text = "Fi&nd what:";
       // 
       // lblReplace
       // 
@@ -62,7 +62,7 @@
       lblReplace.Name = "lblReplace";
       lblReplace.Size = new System.Drawing.Size(72, 13);
       lblReplace.TabIndex = 2;
-      lblReplace.Text = "Replace with:";
+      lblReplace.Text = "R&eplace with:";
       // 
       // btnDone
       // 
@@ -72,7 +72,7 @@
       btnDone.Name = "btnDone";
       btnDone.Size = new System.Drawing.Size(58, 23);
       btnDone.TabIndex = 11;
-      btnDone.Text = "&Done";
+      btnDone.Text = "Done";
       btnDone.UseVisualStyleBackColor = true;
       btnDone.Click += new System.EventHandler(this.btnDone_Click);
       // 
@@ -85,6 +85,7 @@
       this.txtFind.Size = new System.Drawing.Size(286, 20);
       this.txtFind.TabIndex = 1;
       this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
+      this.txtFind.Enter += new System.EventHandler(this.txt_Enter);
       // 
       // txtReplace
       // 
@@ -95,6 +96,7 @@
       this.txtReplace.Size = new System.Drawing.Size(286, 20);
       this.txtReplace.TabIndex = 3;
       this.txtReplace.TextChanged += new System.EventHandler(this.txtReplace_TextChanged);
+      this.txtReplace.Enter += new System.EventHandler(this.txt_Enter);
       // 
       // label1
       // 
