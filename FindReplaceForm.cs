@@ -218,6 +218,11 @@ namespace ExePatch
       Editor.Document.UndoStack.EndUndoGroup();
     }
 
+    void txt_Enter(object sender, EventArgs e)
+    {
+      ((TextBox)sender).SelectAll();
+    }
+
     void txtFind_TextChanged(object sender, EventArgs e)
     {
       btnFind.Enabled = btnReplace.Enabled = btnReplaceAll.Enabled = txtFind.TextLength != 0;
