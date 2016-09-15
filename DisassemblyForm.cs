@@ -10,7 +10,7 @@ using AdamMil.Utilities;
 
 namespace ExePatch
 {
-  public partial class DisassemblyForm : Form
+  partial class DisassemblyForm : Form
   {
     public DisassemblyForm()
     {

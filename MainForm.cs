@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using AdamMil.Utilities;
 using DigitalRune.Windows.TextEditor;
@@ -10,7 +12,7 @@ using DigitalRune.Windows.TextEditor.TextBuffer;
 
 namespace ExePatch
 {
-  public partial class MainForm : Form
+  partial class MainForm : Form
   {
     public MainForm()
     {
@@ -166,11 +168,28 @@ namespace ExePatch
           TryToAssemble(AsmEditor.Text);
         }
       }
+
       if(Editor.AssembledCode == null)
       {
-        MessageBox.Show("There were errors in the assembly.", "Errors in assembly", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show("An error occurred while assembling the code.", "Assembly failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return false;
       }
-      return Editor.AssembledCode != null;
+
+      if(Editor.AssembledCode.Length == 0)
+      {
+        MessageBox.Show("Write some code first.", "No code", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return false;
+      }
+
+      Chunk failed = Editor.AssembledCode.FirstOrDefault(c => c.Error != null);
+      if(failed != null)
+      {
+        MessageBox.Show("Failed to assemble chunk " + failed.MemoryAddress.ToString("X") + "h: " + failed.Error, "Assembly failed",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return false;
+      }
+
+      return true;
     }
 
     void Execute(IEditAction action)
@@ -230,7 +249,6 @@ namespace ExePatch
       try
       {
         AsmEditor.Text = File.ReadAllText(path);
-        Editor.RescanOrgLine();
         Editor.FilePath = Path.GetFullPath(path);
         Editor.Changed = false; // this will have been set when the text was changed
         Editor.IsNewFile = false;
@@ -275,13 +293,6 @@ namespace ExePatch
         if(!findReplace.Visible) findReplace.Show();
         findReplace.Activate();
       }
-    }
-
-    bool RescanOrgLine(bool updateStatus)
-    {
-      bool parsedOrgLine = Editor.RescanOrgLine();
-      if(updateStatus) lblStatus.Text = parsedOrgLine ? "ORG line parsed." : "ORG line not found.";
-      return parsedOrgLine;
     }
 
     bool SaveFile(string path)
@@ -346,16 +357,55 @@ namespace ExePatch
 
     void TryToAssemble(string asm)
     {
-      string textOutput;
       Editor.AssembledCode = null;
-      try { Editor.AssembledCode = Program.Assemble(asm, out textOutput); }
+      Chunk[] chunks;
+      uint baseAddress = Editor.BaseAddress;
+      try { Editor.AssembledCode = chunks = Program.AssembleChunks(asm, baseAddress); }
       finally { Editor.LastChangeTime = 0; }
 
       if(!closed)
       {
+        StringBuilder sb = new StringBuilder();
+        foreach(Chunk chunk in chunks)
+        {
+          if(chunks.Length > 1)
+          {
+            if(sb.Length != 0) sb.AppendLine();
+            sb.Append("ORG ").Append(chunk.MemoryAddress.ToString("X")).Append('h');
+            uint defaultFileOffset = chunk.MemoryAddress >= baseAddress ? chunk.MemoryAddress - baseAddress : chunk.MemoryAddress;
+            if(chunk.FileOffset != defaultFileOffset) sb.Append(" ; file offset = ").Append(chunk.FileOffset.ToString("X")).Append('h');
+            sb.AppendLine();
+          }
+
+          if(chunk.Error != null)
+          {
+            sb.Append("ERROR: ").AppendLine(chunk.Error);
+          }
+          else if(chunk.Code.Length > 100000)
+          {
+            sb.AppendLine("The output is too large to display.");
+          }
+          else
+          {
+            const string HexChars = "0123456789ABCDEF";
+            for(int i=0; i<chunk.Code.Length; )
+            {
+              bool sep = false;
+              for(int e=Math.Min(chunk.Code.Length, i+16); i<e; i++)
+              {
+                if(sep) sb.Append(' ');
+                else sep = true;
+                byte value = chunk.Code[i];
+                sb.Append(HexChars[value>>4]).Append(HexChars[value&0xF]);
+              }
+              sb.AppendLine();
+            }
+          }
+        }
+
         BeginInvoke((Action)delegate
         {
-          Editor.HexViewer.Text = textOutput;
+          Editor.HexViewer.Text = sb.ToString();
           UpdateAssemblyStatus();
         });
       }
@@ -363,14 +413,16 @@ namespace ExePatch
 
     void UpdateAssemblyStatus()
     {
-      if(Editor.AssembledCode == null)
+      int failureCount = Editor.AssembledCode == null ? -1 : Editor.AssembledCode.Count(c => c.Error != null);
+      if(failureCount != 0)
       {
-        lblAssembly.Text = "Assembly failed.";
+        lblAssembly.Text = failureCount < 0 || failureCount == Editor.AssembledCode.Length ?
+          "Assembly failed." : "Assembly partially failed (" + failureCount + " of " + Editor.AssembledCode.Length.ToString() + " chunks)";
       }
       else
       {
-        lblAssembly.Text = Editor.AssembledCode.Length.ToString() + " (0x" + Editor.AssembledCode.Length.ToString("X") +
-                           ") assembled bytes.";
+        int totalLength = Editor.AssembledCode.Sum(c => c.Code.Length);
+        lblAssembly.Text = totalLength.ToString() + " (0x" + totalLength.ToString("X") + ") assembled bytes.";
       }
     }
 
@@ -468,61 +520,24 @@ namespace ExePatch
 
     void idaScriptMenuItem_Click(object sender, EventArgs e)
     {
-      if(Editor.MemoryAddress == 0 && !Editor.ParsedOrgLine || autoRescanOrgLineMenuItem.Checked) RescanOrgLine(false);
       if(EnsureAssembled())
       {
-        using(ScriptForm form = new ScriptForm(Editor.BaseAddress, Editor.MemoryAddress, Editor.AssembledCode))
+        using(ScriptForm form = new ScriptForm(Editor.BaseAddress, Editor.AssembledCode))
         {
-          if(form.ShowDialog() == DialogResult.OK)
-          {
-            Editor.MemoryAddress = form.Address;
-            lblStatus.Text = "IDAPython script placed on the clipboard.";
-          }
+          if(form.ShowDialog() == DialogResult.OK) lblStatus.Text = "IDAPython script placed on the clipboard.";
         }
-      }
-    }
-
-    void multiPatchMenuItem_Click(object sender, EventArgs e)
-    {
-      using(PatchForm form = new PatchForm(Editor.BaseAddress, Editor.PatchFile, Editor.PatchProcessId, Editor.SuspendProcess,
-                                           AsmEditor.Document.TextContent))
-      {
-        if(form.ShowDialog() == DialogResult.OK)
-        {
-          if(form.PatchFile)
-          {
-            Editor.PatchFile      = form.FilePath;
-            Editor.PatchProcessId = 0;
-          }
-          else
-          {
-            Editor.PatchProcessId = form.ProcessId;
-            Editor.SuspendProcess = form.ShouldSuspendProcess;
-          }
-          lblStatus.Text = "Executable multi-patched.";
-        }
-      }
-    }
-
-    void multiScriptMenuItem_Click(object sender, EventArgs e)
-    {
-      using(ScriptForm form = new ScriptForm(Editor.BaseAddress, AsmEditor.Document.TextContent))
-      {
-        if(form.ShowDialog() == DialogResult.OK) lblStatus.Text = "IDAPython multi-script placed on the clipboard.";
       }
     }
 
     void patchMenuItem_Click(object sender, EventArgs e)
     {
-      if(Editor.FileOffset == 0 && !Editor.ParsedOrgLine || autoRescanOrgLineMenuItem.Checked) RescanOrgLine(false);
       if(EnsureAssembled())
       {
-        using(PatchForm form = new PatchForm(Editor.BaseAddress, Editor.MemoryAddress, Editor.FileOffset, Editor.PatchFile,
-                                             Editor.PatchProcessId, Editor.SuspendProcess, Editor.AssembledCode))
+        using(PatchForm form = new PatchForm(Editor.BaseAddress, Editor.PatchFile, Editor.PatchProcessId, Editor.SuspendProcess,
+                                             Editor.AssembledCode))
         {
           if(form.ShowDialog() == DialogResult.OK)
           {
-            Editor.FileOffset = form.Address;
             if(form.PatchFile)
             {
               Editor.PatchFile      = form.FilePath;
@@ -557,15 +572,17 @@ namespace ExePatch
       }
     }
 
-    void rescanORGLineMenuItem_Click(object sender, EventArgs e)
-    {
-      RescanOrgLine(true);
-    }
-
     void saveBinaryMenuItem_Click(object sender, EventArgs e)
     {
       if(EnsureAssembled())
       {
+        if(Editor.AssembledCode.Length > 1)
+        {
+          MessageBox.Show("There are multiple assembled chunks. You can only save a single chunk as binary. (Try commenting others out.)",
+                          "Too many chunks", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+
         using(SaveFileDialog sfd = new SaveFileDialog())
         {
           sfd.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*";
@@ -575,8 +592,8 @@ namespace ExePatch
           {
             try
             {
-              File.WriteAllBytes(sfd.FileName, Editor.AssembledCode);
-              lblStatus.Text = Editor.AssembledCode.Length.ToString() + " assembled bytes saved.";
+              File.WriteAllBytes(sfd.FileName, Editor.AssembledCode[0].Code);
+              lblStatus.Text = Editor.AssembledCode[0].Code.Length.ToString() + " assembled bytes saved.";
             }
             catch(Exception ex) { Program.ShowErrorMessage(ex); }
           }
@@ -592,14 +609,6 @@ namespace ExePatch
     void saveAsMenuItem_Click(object sender, EventArgs e)
     {
       SaveFile(null);
-    }
-
-    void setFileMemoryOffsetMenuItem_Click(object sender, EventArgs e)
-    {
-      using(BaseAddressForm form = new BaseAddressForm(Editor.BaseAddress))
-      {
-        if(form.ShowDialog() == DialogResult.OK) Editor.BaseAddress = form.Offset;
-      }
     }
 
     void tabControl_SelectedIndexChanged(object sender, EventArgs e)

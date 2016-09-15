@@ -1,40 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ExePatch
 {
-  public partial class PatchForm : Form
+  partial class PatchForm : Form
   {
     public PatchForm()
     {
       InitializeComponent();
     }
 
-    public PatchForm(uint baseAddress, uint memAddress, uint fileOffset, string filePath, int processId, bool suspend, byte[] binary)
-      : this(baseAddress, filePath, processId, suspend)
-    {
-      this.memAddress = memAddress;
-      this.fileOffset = fileOffset;
-      this.binaryData = binary;
-      txtOffset.Text  = (radProcess.Checked ? memAddress : fileOffset).ToString("X");
-    }
-
-    public PatchForm(uint baseAddress, string filePath, int processId, bool suspend, string asm)
-      : this(baseAddress, filePath, processId, suspend)
-    {
-      txtOffset.Enabled = false;
-      txtOffset.Text    = "Auto";
-      this.asm          = asm;
-    }
-
-    PatchForm(uint baseAddress, string filePath, int processId, bool suspend) : this()
+    public PatchForm(uint baseAddress, string filePath, int processId, bool suspend, Chunk[] chunks) : this()
     {
       this.baseAddress   = baseAddress;
+      this.chunks        = chunks;
       txtFile.Text       = filePath;
       ProcessId          = processId;
       chkSuspend.Checked = suspend;
@@ -44,11 +25,9 @@ namespace ExePatch
         radProcess.Checked = true;
         lblProcess.Text = "Process #" + ProcessId.ToString();
       }
-    }
 
-    public uint Address
-    {
-      get { return uint.Parse(txtOffset.Text, NumberStyles.HexNumber); }
+      txtOffset.Enabled = chunks.Length == 1;
+      txtOffset.Text    = chunks.Length == 1 ? (ProcessId != 0 ? chunks[0].MemoryAddress : chunks[0].FileOffset).ToString("X") : "Multiple";
     }
 
     public string FilePath
@@ -83,63 +62,10 @@ namespace ExePatch
       btnPatch.Enabled = radProcess.Checked && ProcessId != 0 || txtFile.TextLength != 0;
     }
 
-    bool MultiPatch()
-    {
-      string error;
-      int failedChunk;
-      Program.Chunk[] chunks = Program.AssembleChunks(asm, baseAddress, out failedChunk, out error);
-      if(chunks == null)
-      {
-        MessageBox.Show("Failed to assemble chunk " + failedChunk.ToString() + ": " + error, "Assembly failed",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return false;
-      }
-      else
-      {
-        if(radFile.Checked)
-        {
-          using(FileStream file = new FileStream(txtFile.Text, FileMode.Open, FileAccess.ReadWrite))
-          {
-            foreach(Program.Chunk chunk in chunks)
-            {
-              file.Position = chunk.FileOffset;
-              file.Write(chunk.Code, 0, chunk.Code.Length);
-            }
-          }
-        }
-        else
-        {
-          if(chkSuspend.Checked && !SuspendProcess())
-          {
-            MessageBox.Show("Unable to suspend the process.", "Cannot suspend process", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return false;
-          }
-          try
-          {
-            for(int i=0; i<chunks.Length; i++)
-            {
-              if(!WriteProcess(chunks[i].MemoryAddress, chunks[i].Code, false))
-              {
-                MessageBox.Show("Unable to write to the process memory." + (i == 0 ? null : "The process was partially patched."),
-                                "Cannot write", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-              }
-            }
-          }
-          finally
-          {
-            if(chkSuspend.Checked) ResumeProcess();
-          }
-        }
-      }
-
-      return true;
-    }
-
     bool Patch()
     {
-      uint offset;
-      if(!uint.TryParse(txtOffset.Text, NumberStyles.HexNumber, null, out offset))
+      uint offset = 0;
+      if(chunks.Length == 1 && !uint.TryParse(txtOffset.Text, NumberStyles.HexNumber, null, out offset))
       {
         MessageBox.Show("Invalid offset. Enter a 32-bit hex number.", "Invalid offset", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return false;
@@ -149,14 +75,37 @@ namespace ExePatch
       {
         using(FileStream file = new FileStream(txtFile.Text, FileMode.Open, FileAccess.ReadWrite))
         {
-          file.Position = offset;
-          file.Write(binaryData, 0, binaryData.Length);
+          for(int i=0; i<chunks.Length; i++)
+          {
+            file.Position = chunks.Length == 1 ? offset : chunks[i].FileOffset;
+            file.Write(chunks[i].Code, 0, chunks[i].Code.Length);
+          }
         }
       }
-      else if(!WriteProcess(offset, binaryData, chkSuspend.Checked))
+      else
       {
-        MessageBox.Show("Unable to write to the process memory.", "Can not write", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return false;
+        if(chkSuspend.Checked && !SuspendProcess())
+        {
+          MessageBox.Show("Unable to suspend the process.", "Cannot suspend process", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return false;
+        }
+
+        try
+        {
+          for(int i=0; i<chunks.Length; i++)
+          {
+            if(!WriteProcess(chunks.Length == 1 ? offset : chunks[i].MemoryAddress, chunks[i].Code, false))
+            {
+              MessageBox.Show("Unable to write to the process memory." + (i == 0 ? null : "The process was partially patched."),
+                              "Cannot write", MessageBoxButtons.OK, MessageBoxIcon.Error);
+              return false;
+            }
+          }
+        }
+        finally
+        {
+          if(chkSuspend.Checked) ResumeProcess();
+        }
       }
 
       return true;
@@ -251,7 +200,7 @@ namespace ExePatch
     {
       try
       {
-        if(txtOffset.Enabled ? Patch() : MultiPatch())
+        if(Patch())
         {
           DialogResult = DialogResult.OK;
           Close();
@@ -266,7 +215,7 @@ namespace ExePatch
     void radProcess_CheckedChanged(object sender, EventArgs e)
     {
       chkSuspend.Enabled = radProcess.Checked;
-      if(txtOffset.Enabled) txtOffset.Text = (radFile.Checked ? fileOffset : memAddress).ToString("X");
+      if(txtOffset.Enabled) txtOffset.Text = (radFile.Checked ? chunks[0].FileOffset : chunks[0].MemoryAddress).ToString("X");
       EnableOrDisableControls();
     }
 
@@ -276,8 +225,7 @@ namespace ExePatch
       EnableOrDisableControls();
     }
 
-    readonly byte[] binaryData;
-    readonly string asm;
-    readonly uint baseAddress = 0x400000, memAddress, fileOffset;
+    readonly Chunk[] chunks;
+    readonly uint baseAddress;
   }
 }

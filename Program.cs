@@ -10,6 +10,29 @@ using AdamMil.Utilities;
 
 namespace ExePatch
 {
+  #region Chunk
+  sealed class Chunk
+  {
+    public Chunk(uint memAddress, uint fileOffset, byte[] code)
+    {
+      MemoryAddress = memAddress;
+      FileOffset    = fileOffset;
+      Code          = code;
+    }
+
+    public Chunk(uint memAddress, uint fileOffset, string error)
+    {
+      MemoryAddress = memAddress;
+      FileOffset    = fileOffset;
+      Error         = error;
+    }
+
+    public readonly uint MemoryAddress, FileOffset;
+    public readonly byte[] Code;
+    public readonly string Error;
+  }
+  #endregion
+
   static class Program
   {
     internal static string ExeDirectory
@@ -24,20 +47,6 @@ namespace ExePatch
       get { return MainForm.StatusText; }
       set { MainForm.StatusText = value; }
     }
-
-    #region Chunk
-    internal struct Chunk
-    {
-      public Chunk(uint memAddress, uint fileOffset, byte[] code)
-      {
-        MemoryAddress = memAddress;
-        FileOffset    = fileOffset;
-        Code          = code;
-      }
-      public readonly uint MemoryAddress, FileOffset;
-      public readonly byte[] Code;
-    }
-    #endregion
 
     internal static byte[] Assemble(string asm, out string output)
     {
@@ -73,29 +82,7 @@ namespace ExePatch
             }
             else if(result == 0)
             {
-              byte[] bin = assembledCode = File.ReadAllBytes(outFile);
-              if(bin.Length > 100000)
-              {
-                textOutput = "The output is too large to display.";
-              }
-              else
-              {
-                const string HexChars = "0123456789ABCDEF";
-                StringBuilder sb = new StringBuilder();
-                for(int i=0; i<bin.Length; )
-                {
-                  bool sep = false;
-                  for(int e=Math.Min(bin.Length, i+16); i<e; i++)
-                  {
-                    if(sep) sb.Append(' ');
-                    else sep = true;
-                    byte value = bin[i];
-                    sb.Append(HexChars[value>>4]).Append(HexChars[value&0xF]);
-                  }
-                  if(i < bin.Length) sb.Append('\n');
-                }
-                textOutput = sb.ToString();
-              }
+              assembledCode = File.ReadAllBytes(outFile);
             }
           }
         }
@@ -116,7 +103,7 @@ namespace ExePatch
       return assembledCode;
     }
 
-    internal static Chunk[] AssembleChunks(string asm, uint baseAddress, out int failedChunk, out string error)
+    internal static Chunk[] AssembleChunks(string asm, uint baseAddress)
     {
       StringBuilder sb = new StringBuilder();
       List<string> chunkAsm = new List<string>();
@@ -126,10 +113,11 @@ namespace ExePatch
         {
           string line = reader.ReadLine();
           if(line == null) break;
-          else if(line.Length == 0 || line[0] == ';') continue;
+          line = line.Trim();
+          if(line.Length == 0 || line[0] == ';') continue;
 
           uint memAddress, fileOffset;
-          if(ParseOrgLine(line, baseAddress, out memAddress, out fileOffset))
+          if(ParseOrgLine(line, baseAddress, false, out memAddress, out fileOffset))
           {
             chunkAsm.Add(sb.ToString());
             sb.Length = chunkAsm[0].Length;
@@ -142,13 +130,12 @@ namespace ExePatch
       }
 
       List<Chunk> chunks = new List<Chunk>(chunkAsm.Count);
-      failedChunk = -1;
-      error       = null;
       for(int i = chunkAsm.Count > 1 ? 1 : 0, j = 0; i<chunkAsm.Count; i++, j++)
       {
         uint memAddress, fileAddress;
         byte[] code = null;
-        if(!ParseOrgLine(chunkAsm[i], baseAddress, out memAddress, out fileAddress))
+        string error =  null;
+        if(!ParseOrgLine(chunkAsm[i], baseAddress, chunkAsm.Count == 1, out memAddress, out fileAddress))
         {
           error = "Missing or invalid ORG line.";
         }
@@ -160,8 +147,7 @@ namespace ExePatch
 
         if(error != null)
         {
-          failedChunk = i;
-          break;
+          chunks.Add(new Chunk(memAddress, fileAddress, error));
         }
         else if(code.Length != 0)
         {
@@ -169,10 +155,10 @@ namespace ExePatch
         }
       }
 
-      return error == null ? chunks.ToArray() : null;
+      return chunks.ToArray();
     }
 
-    internal static bool ParseOrgLine(string text, uint baseAddress, out uint memAddress, out uint fileOffset)
+    internal static bool ParseOrgLine(string text, uint baseAddress, bool allowDefaults, out uint memAddress, out uint fileOffset)
     {
       Match m = orgRe.Match(text);
       if(m.Success)
@@ -186,13 +172,20 @@ namespace ExePatch
         {
           fileOffset = memAddress >= baseAddress ? memAddress - baseAddress : memAddress;
         }
+        return true;
+      }
+      else if(allowDefaults && !anyOrgRe.IsMatch(text))
+      {
+        memAddress = 0x400000;
+        fileOffset = 0;
+        return true;
       }
       else
       {
-        memAddress  = 0;
+        memAddress = 0;
         fileOffset = 0;
+        return false;
       }
-      return m.Success;
     }
 
     internal static string QuoteArgument(string text)
@@ -215,5 +208,6 @@ namespace ExePatch
 
     static readonly Regex orgRe = new Regex(@"^ORG ([0-9a-f]{1,8})(h)?\b(?:\s*;\s*file offset\s*(?:\=\s*)?([0-9a-f]{1,8})(h)?\b)?",
                                             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+    static readonly Regex anyOrgRe = new Regex("^ORG ", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
   }
 }

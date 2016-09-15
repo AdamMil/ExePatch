@@ -50,14 +50,7 @@
       System.Windows.Forms.ToolStripMenuItem toggleCommentsMenuItem;
       System.Windows.Forms.ToolStripMenuItem toolsMenu;
       System.Windows.Forms.ToolStripMenuItem idaScriptMenuItem;
-      System.Windows.Forms.ToolStripMenuItem multiScriptMenuItem;
-      System.Windows.Forms.ToolStripSeparator menuSep5;
       System.Windows.Forms.ToolStripMenuItem patchMenuItem;
-      System.Windows.Forms.ToolStripMenuItem multiPatchMenuItem;
-      System.Windows.Forms.ToolStripSeparator menuSep6;
-      System.Windows.Forms.ToolStripMenuItem rescanORGLineMenuItem;
-      System.Windows.Forms.ToolStripSeparator menuSep9;
-      System.Windows.Forms.ToolStripMenuItem setFileMemoryOffsetMenuItem;
       System.Windows.Forms.ToolStripMenuItem helpMenu;
       System.Windows.Forms.ToolStripMenuItem assemblerSyntaxMenuItem;
       System.Windows.Forms.ToolStripMenuItem tutorialMenuItem;
@@ -68,7 +61,6 @@
       System.Windows.Forms.ToolStripSeparator menuSep10;
       this.saveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.findNextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.autoRescanOrgLineMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
       this.lblAssembly = new System.Windows.Forms.ToolStripStatusLabel();
       this.tabControl = new System.Windows.Forms.TabControl();
@@ -94,14 +86,7 @@
       toggleCommentsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       toolsMenu = new System.Windows.Forms.ToolStripMenuItem();
       idaScriptMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      multiScriptMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      menuSep5 = new System.Windows.Forms.ToolStripSeparator();
       patchMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      multiPatchMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      menuSep6 = new System.Windows.Forms.ToolStripSeparator();
-      rescanORGLineMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      menuSep9 = new System.Windows.Forms.ToolStripSeparator();
-      setFileMemoryOffsetMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       helpMenu = new System.Windows.Forms.ToolStripMenuItem();
       assemblerSyntaxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       tutorialMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -304,15 +289,7 @@
       // 
       toolsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             idaScriptMenuItem,
-            multiScriptMenuItem,
-            menuSep5,
-            patchMenuItem,
-            multiPatchMenuItem,
-            menuSep6,
-            rescanORGLineMenuItem,
-            this.autoRescanOrgLineMenuItem,
-            menuSep9,
-            setFileMemoryOffsetMenuItem});
+            patchMenuItem});
       toolsMenu.Name = "toolsMenu";
       toolsMenu.Size = new System.Drawing.Size(48, 20);
       toolsMenu.Text = "&Tools";
@@ -325,20 +302,6 @@
       idaScriptMenuItem.Text = "Generate &IDAPython Script...";
       idaScriptMenuItem.Click += new System.EventHandler(this.idaScriptMenuItem_Click);
       // 
-      // multiScriptMenuItem
-      // 
-      multiScriptMenuItem.Name = "multiScriptMenuItem";
-      multiScriptMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.I)));
-      multiScriptMenuItem.Size = new System.Drawing.Size(282, 22);
-      multiScriptMenuItem.Text = "Multi-&script...";
-      multiScriptMenuItem.Click += new System.EventHandler(this.multiScriptMenuItem_Click);
-      // 
-      // menuSep5
-      // 
-      menuSep5.Name = "menuSep5";
-      menuSep5.Size = new System.Drawing.Size(279, 6);
-      // 
       // patchMenuItem
       // 
       patchMenuItem.Name = "patchMenuItem";
@@ -346,51 +309,6 @@
       patchMenuItem.Size = new System.Drawing.Size(282, 22);
       patchMenuItem.Text = "&Patch Executable...";
       patchMenuItem.Click += new System.EventHandler(this.patchMenuItem_Click);
-      // 
-      // multiPatchMenuItem
-      // 
-      multiPatchMenuItem.Name = "multiPatchMenuItem";
-      multiPatchMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.P)));
-      multiPatchMenuItem.Size = new System.Drawing.Size(282, 22);
-      multiPatchMenuItem.Text = "&Multi-patch...";
-      multiPatchMenuItem.Click += new System.EventHandler(this.multiPatchMenuItem_Click);
-      // 
-      // menuSep6
-      // 
-      menuSep6.Name = "menuSep6";
-      menuSep6.Size = new System.Drawing.Size(279, 6);
-      // 
-      // rescanORGLineMenuItem
-      // 
-      rescanORGLineMenuItem.Name = "rescanORGLineMenuItem";
-      rescanORGLineMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-      rescanORGLineMenuItem.Size = new System.Drawing.Size(282, 22);
-      rescanORGLineMenuItem.Text = "&Rescan ORG Line";
-      rescanORGLineMenuItem.Click += new System.EventHandler(this.rescanORGLineMenuItem_Click);
-      // 
-      // autoRescanOrgLineMenuItem
-      // 
-      this.autoRescanOrgLineMenuItem.Checked = true;
-      this.autoRescanOrgLineMenuItem.CheckOnClick = true;
-      this.autoRescanOrgLineMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.autoRescanOrgLineMenuItem.Name = "autoRescanOrgLineMenuItem";
-      this.autoRescanOrgLineMenuItem.Size = new System.Drawing.Size(282, 22);
-      this.autoRescanOrgLineMenuItem.Text = "Always Rescan ORG Line";
-      // 
-      // menuSep9
-      // 
-      menuSep9.Name = "menuSep9";
-      menuSep9.Size = new System.Drawing.Size(279, 6);
-      // 
-      // setFileMemoryOffsetMenuItem
-      // 
-      setFileMemoryOffsetMenuItem.Name = "setFileMemoryOffsetMenuItem";
-      setFileMemoryOffsetMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.M)));
-      setFileMemoryOffsetMenuItem.Size = new System.Drawing.Size(282, 22);
-      setFileMemoryOffsetMenuItem.Text = "Set File/Memory &Offset...";
-      setFileMemoryOffsetMenuItem.Click += new System.EventHandler(this.setFileMemoryOffsetMenuItem_Click);
       // 
       // helpMenu
       // 
@@ -501,7 +419,6 @@
 
     private System.Windows.Forms.ToolStripMenuItem saveAsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem findNextMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem autoRescanOrgLineMenuItem;
     private System.Windows.Forms.ToolStripStatusLabel lblStatus;
     private System.Windows.Forms.ToolStripStatusLabel lblAssembly;
     private System.Windows.Forms.TabControl tabControl;
