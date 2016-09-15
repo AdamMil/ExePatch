@@ -5,7 +5,7 @@ using DigitalRune.Windows.TextEditor.TextBuffer;
 
 namespace ExePatch
 {
-  public partial class FindReplaceForm : Form
+  partial class FindReplaceForm : Form
   {
     public FindReplaceForm()
     {

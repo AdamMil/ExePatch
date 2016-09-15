@@ -6,31 +6,19 @@ using AdamMil.Utilities;
 
 namespace ExePatch
 {
-  public partial class ScriptForm : Form
+  partial class ScriptForm : Form
   {
     public ScriptForm()
     {
       InitializeComponent();
     }
 
-    public ScriptForm(uint baseAddress, uint address, byte[] binary) : this()
+    public ScriptForm(uint baseAddress, Chunk[] chunks) : this()
     {
+      txtAddress.Enabled = chunks.Length == 1;
+      txtAddress.Text    = chunks.Length == 1 ? chunks[0].MemoryAddress.ToString("X") : "Multiple";
       this.baseAddress = baseAddress;
-      txtAddress.Text  = address.ToString("X");
-      binaryData       = binary;
-    }
-
-    public ScriptForm(uint baseAddress, string asm) : this()
-    {
-      txtAddress.Enabled = false;
-      txtAddress.Text    = "Auto";
-      this.baseAddress   = baseAddress;
-      this.asm           = asm;
-    }
-
-    public uint Address
-    {
-      get { return uint.Parse(txtAddress.Text, NumberStyles.HexNumber); }
+      this.chunks      = chunks;
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
@@ -46,29 +34,10 @@ namespace ExePatch
       CenterToParent();
     }
 
-    string MultiScript()
-    {
-      string error;
-      int failedChunk;
-      Program.Chunk[] chunks = Program.AssembleChunks(asm, baseAddress, out failedChunk, out error);
-      if(chunks == null)
-      {
-        MessageBox.Show("Failed to assemble chunk " + failedChunk.ToString() + ": " + error, "Assembly failed",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return null;
-      }
-      else
-      {
-        StringBuilder sb = new StringBuilder();
-        foreach(Program.Chunk chunk in chunks) Script(sb, chunk.MemoryAddress, chunk.Code);
-        return sb.ToString();
-      }
-    }
-
     string Script()
     {
-      uint address;
-      if(!uint.TryParse(txtAddress.Text, NumberStyles.HexNumber, null, out address))
+      uint address = 0;
+      if(chunks.Length == 1 && !uint.TryParse(txtAddress.Text, NumberStyles.HexNumber, null, out address))
       {
         MessageBox.Show("Invalid address. Enter a 32-bit hex number.", "Invalid address", MessageBoxButtons.OK, MessageBoxIcon.Error);
         return null;
@@ -76,7 +45,15 @@ namespace ExePatch
       else
       {
         StringBuilder sb = new StringBuilder();
-        Script(sb, address, binaryData);
+        if(chunks.Length == 1)
+        {
+          Script(sb, address, chunks[0].Code);
+        }
+        else
+        {
+          foreach(Chunk chunk in chunks) Script(sb, chunk.MemoryAddress, chunk.Code);
+        }
+
         return sb.ToString();
       }
     }
@@ -85,7 +62,7 @@ namespace ExePatch
     {
       try
       {
-        string script = txtAddress.Enabled ? Script() : MultiScript();
+        string script = Script();
         if(script != null)
         {
           Clipboard.SetText(script);
@@ -99,9 +76,8 @@ namespace ExePatch
       }
     }
 
-    readonly string asm;
-    readonly byte[] binaryData;
-    readonly uint baseAddress = 0x400000;
+    readonly Chunk[] chunks;
+    readonly uint baseAddress;
 
     static void Script(StringBuilder sb, uint address, byte[] code)
     {

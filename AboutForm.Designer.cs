@@ -44,9 +44,9 @@
       lblBy.AutoSize = true;
       lblBy.Location = new System.Drawing.Point(149, 38);
       lblBy.Name = "lblBy";
-      lblBy.Size = new System.Drawing.Size(117, 13);
+      lblBy.Size = new System.Drawing.Size(144, 13);
       lblBy.TabIndex = 1;
-      lblBy.Text = "By Adam Milazzo, 2014";
+      lblBy.Text = "By Adam Milazzo, 2014-2016";
       // 
       // link
       // 

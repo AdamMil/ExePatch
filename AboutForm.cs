@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace ExePatch
 {
-  public partial class AboutForm : Form
+  partial class AboutForm : Form
   {
     public AboutForm()
     {

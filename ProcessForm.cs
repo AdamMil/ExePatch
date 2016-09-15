@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace ExePatch
 {
-  public partial class ProcessForm : Form
+  partial class ProcessForm : Form
   {
     public ProcessForm()
     {

@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace ExePatch
 {
-  public partial class GoToLineForm : Form
+  partial class GoToLineForm : Form
   {
     public GoToLineForm()
     {
